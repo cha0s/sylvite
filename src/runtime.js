@@ -62,8 +62,8 @@ function stubHookImplementation(name, strategy) {
   }
 }
 
-function wrapHookImplementations({hooks, loaded, path}) {
-  const {missingHookStrategy} = loaded['sylvite']?.config ?? {};
+function wrapHookImplementations({hooks, manifest, path}) {
+  const {missingHookStrategy} = manifest?.['sylvite'] ?? {};
   const wrapped = {};
   const proxy = new Proxy(hooks, {
     get(hooks, name) {
@@ -95,7 +95,7 @@ export async function registerHookImplementations({entry, hooks, loaded, manifes
     }
     const params = {
       config: spec.config[entry] || {},
-      hooks: wrapHookImplementations({hooks, loaded, path}),
+      hooks: wrapHookImplementations({hooks, manifest, path}),
       loaded,
       manifest,
       meta,

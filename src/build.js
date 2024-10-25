@@ -13,12 +13,12 @@ async function createVirtualModules({manifest, meta}) {
       if (!(resolved in virtualModules) && id.startsWith('virtual:sylvite/')) {
         const entry = id.slice('virtual:sylvite/'.length);
         virtualModules[resolved] = {
-          entry,
-          manifest: await deriveManifest({
+          derived: await deriveManifest({
             entry,
             manifest,
             meta,
           }),
+          entry,
         };
       }
       if (virtualModules[resolved]) {
@@ -27,10 +27,10 @@ async function createVirtualModules({manifest, meta}) {
     },
     load(resolved) {
       if (virtualModules[resolved]) {
-        const {entry, manifest} = virtualModules[resolved];
+        const {entry, derived} = virtualModules[resolved];
         return [
           'export const loaded = Object.fromEntries(await Promise.all([',
-            Object.entries(manifest).map(([path, {config, resolved}]) => ([
+            Object.entries(derived).map(([path, {config, resolved}]) => ([
           '  new Promise((resolve) => {',
           `    resolve(import(${JSON.stringify(resolved)}).then((M) => (`,
           `      [${JSON.stringify(path)}, {config: ${JSON.stringify(config[entry] || {})}, M}]`,
@@ -40,7 +40,11 @@ async function createVirtualModules({manifest, meta}) {
           ']));',
           '',
           "import {registerHooks} from 'sylvite/runtime';",
-          `export const hooks = await registerHooks({entry: ${JSON.stringify(entry)}, loaded});`,
+          'export const hooks = await registerHooks({',
+          `  entry: ${JSON.stringify(entry)},`,
+          '  loaded,',
+          `  manifest: ${JSON.stringify({sylvite: manifest?.['sylvite'] ?? {}})},`,
+          '});',
           '',
         ].join('\n');
       }

@@ -30,9 +30,10 @@ test('configures missing hook behavior', async () => {
           },
         },
       },
+    },
+    manifest: {
       sylvite: {
-        config: {missingHookStrategy: 'warn'},
-        M: {},
+        missingHookStrategy: 'warn',
       },
     },
   });
@@ -50,9 +51,10 @@ test('configures missing hook behavior', async () => {
             },
           },
         },
+      },
+      manifest: {
         sylvite: {
-          config: {missingHookStrategy: 'error'},
-          M: {},
+          missingHookStrategy: 'error',
         },
       },
     });

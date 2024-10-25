@@ -1,4 +1,13 @@
-import {hooks} from 'virtual:sylvite/asdfghjkl';
+/* eslint-disable no-undef */
 
-// eslint-disable-next-line no-undef
-process.send(hooks.lkjhgfdsa.call());
+try {
+  console.warn = () => {
+    process.send('warn');
+    process.exit(0);
+  }
+  const {hooks} = await import('virtual:sylvite/asdfghjkl');
+  process.send(hooks.lkjhgfdsa.call());
+}
+catch (error) {
+  process.send('error');
+}

@@ -4,10 +4,21 @@ import sylvite from '../index.js';
 
 const {hooks} = await sylvite({
   manifest: {
+    sylvite: {
+      // eslint-disable-next-line no-undef
+      missingHookStrategy: process.env.MISSING_HOOK_STRATEGY,
+    },
     [import.meta.dirname]: {},
-    [resolve(import.meta.dirname, '..')]: {},
   },
-  meta: import.meta,
+  meta: {
+    dirname: import.meta.dirname,
+    resolve: (path) => {
+      if ('sylvite/build' === path) {
+        return resolve(import.meta.dirname, '..', 'build.js');
+      }
+      return import.meta.resolve(path);
+    },
+  },
 });
 
 import {build} from 'vite';
