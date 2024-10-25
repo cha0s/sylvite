@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.2...sylvite-v1.0.3) (2024-10-25)
+
+
+### Bug Fixes
+
+* dispatch ([b633959](https://github.com/cha0s/sylvite/commit/b6339597f0c878a43a22b965844401f9b435570c))
+
 ## [1.0.2](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.1...sylvite-v1.0.2) (2024-10-25)
 
 
