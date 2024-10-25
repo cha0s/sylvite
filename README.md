@@ -205,7 +205,7 @@ This library is super duper dangerous. Stay safe; don't use it!
 ### Why do I have to pass in `import.meta`?
 
 `import.meta` is used to resolve entries and relative paths. You could theoretically pass in any
-object that implemented `dirname` and `resolve`, thought I don't know why you'd want to.
+object that implemented `dirname` and `resolve`, though I don't know why you'd want to.
 
 ### How absolutely dare you!/Who would do such a thing?
 
