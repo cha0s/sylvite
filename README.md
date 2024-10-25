@@ -49,8 +49,6 @@ src
    └─ client.js
 ```
 
-...
-
 We could add `src/coolio` to our manifest:
 
 ```javascript
