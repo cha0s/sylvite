@@ -10,7 +10,7 @@ test('configures missing hook behavior', async () => {
         config: {},
         M: {
           implement({hooks}) {
-            hooks.poiuytrewq.tap(() => {});
+            hooks.tap('poiuytrewq', () => {});
             implemented = true;
           },
         },
@@ -26,7 +26,7 @@ test('configures missing hook behavior', async () => {
         config: {},
         M: {
           implement({hooks}) {
-            hooks.poiuytrewq.tap(() => {});
+            hooks.tap('poiuytrewq', () => {});
           },
         },
       },
@@ -47,7 +47,7 @@ test('configures missing hook behavior', async () => {
           config: {},
           M: {
             implement({hooks}) {
-              hooks.poiuytrewq.tap(() => {});
+              hooks.tap('poiuytrewq', () => {});
             },
           },
         },

@@ -5,7 +5,7 @@ import {expect, test} from 'vitest';
 
 async function runTest(MISSING_HOOK_STRATEGY) {
   await rimraf('src/test/dist');
-  let output;
+  const output = [];
   const build = fork('src/test/vite-runtime.js', {
     env: {MISSING_HOOK_STRATEGY},
   });
@@ -16,12 +16,16 @@ async function runTest(MISSING_HOOK_STRATEGY) {
   const run = fork('src/test/dist/runtime.js');
   await new Promise((resolve, reject) => {
     run.on('message', (message) => {
-      output = message;
+      output.push(message);
     });
     run.on('close', resolve);
     run.on('error', reject);
   });
-  expect(output).to.equal(MISSING_HOOK_STRATEGY);
+  expect(output).to.deep.equal(
+    'warn' === MISSING_HOOK_STRATEGY
+      ? [MISSING_HOOK_STRATEGY, MISSING_HOOK_STRATEGY]
+      : [MISSING_HOOK_STRATEGY],
+  );
   await rimraf('src/test/dist');
 }
 

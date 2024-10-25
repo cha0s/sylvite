@@ -35,7 +35,7 @@ await build({
     target: 'esnext',
   },
   logLevel: 'silent',
-  plugins: hooks.vitePlugins.call([]),
+  plugins: hooks.call('vitePlugins', []),
   resolve: {
     alias: {
       'sylvite/runtime': resolve(import.meta.dirname, '..', 'runtime.js'),

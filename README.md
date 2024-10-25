@@ -24,7 +24,7 @@ const {hooks} = await sylvite({
 
 export default defineConfig({
   // ...
-  plugins: hooks.vitePlugins.call([
+  plugins: hooks.call('vitePlugins', [
     // any other Vite plugins
   ]),
   // ...
@@ -82,7 +82,7 @@ a simple naming convention:
 ```javascript
 import {hooks} from 'virtual:sylvite/client';
 
-hooks.forExampleClientInitialize.call(window || 'whatever');
+hooks.call('forExampleClientInitialize', window || 'whatever');
 ```
 
 Your virtual module exports the following named exports:
@@ -137,7 +137,7 @@ Hooks are implemented by exporting an `implement` function from your entry:
 
 ```javascript
 export function implement({hooks}) {
-  hooks.forExampleClientInitialize.tap((window) => {
+  hooks.tap('forExampleClientInitialize', (window) => {
     window.alert('hello world!');
   });
 }
@@ -163,7 +163,7 @@ By default, Sylvite will silently ignore e.g.:
 
 ```javascript
 export function implement({hooks}) {
-  hooks.thisHookDoesNotExist.tap((window) => {
+  hooks.tap('thisHookDoesNotExist', (window) => {
     // ...
   });
 }
@@ -192,9 +192,6 @@ When any `'build'` entry file changes, the Vite dev server will restart automati
 ## TODO ✍️
 
 It will be possible in the future to specify the order in which hooks execute.
-
-It probably makes sense to stub hook registrations the same way as implementations so that `.call`
-on a non-existent hook won't throw. Currently, that will throw.
 
 ## Q/A 💬
 

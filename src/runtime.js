@@ -1,6 +1,18 @@
 import * as tapable from 'tapable';
 
+function stubHookInvocation(type, name, strategy) {
+  switch (strategy) {
+    case 'error': {
+      throw new ReferenceError(`Invocation of '${type}' on missing hook '${name}'`);
+    }
+    case 'warn': {
+      console.warn(new ReferenceError(`Invocation of '${type}' on missing hook '${name}'`));
+    }
+  }
+}
+
 export async function registerHooks({entry, loaded, manifest, meta}) {
+  const {missingHookStrategy} = manifest?.['sylvite'] ?? {};
   const hooks = {};
   // register hooks
   await Promise.all(Object.entries(loaded).map(async ([path, spec]) => {
@@ -26,65 +38,74 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
     manifest,
     meta,
   });
-  return hooks;
-}
-
-// smooth over hook origins
-function wrapHook(path, hook) {
-  const {tap, tapAsync, tapPromise} = hook;
   return {
-    ...hook,
-    tap: (fn) => {
-      tap.call(hook, path, fn);
+    call: (name, ...args) => {
+      if (!hooks[name]) {
+        stubHookInvocation('call', name, missingHookStrategy);
+        return;
+      }
+      return hooks[name].call(...args);
     },
-    tapAsync: (fn) => {
-      tapAsync.call(hook, path, fn);
+    callAsync: (name, ...args) => {
+      if (!hooks[name]) {
+        stubHookInvocation('callAsync', name, missingHookStrategy);
+        return;
+      }
+      return hooks[name].callAsync(...args);
     },
-    tapPromise: (fn) => {
-      tapPromise.call(hook, path, fn);
+    promise: (name, ...args) => {
+      if (!hooks[name]) {
+        stubHookInvocation('promise', name, missingHookStrategy);
+        return Promise.resolve();
+      }
+      return hooks[name].promise(...args);
     },
-  };
+  }
 }
 
-function stubHookImplementation(name, strategy) {
+function stubHookImplementation(type, name, strategy) {
   switch (strategy) {
     case 'error': {
-      return () => {
-        throw new ReferenceError(`Implementation of missing hook '${name}'`);
-      };
+      throw new ReferenceError(`Implementation of '${type}' on missing hook '${name}'`);
     }
     case 'warn': {
-      return () => {
-        console.warn(new ReferenceError(`Implementation of missing hook '${name}'`));
-      };
+      console.warn(new ReferenceError(`Implementation of '${type}' on missing hook '${name}'`));
     }
-    default: return () => {};
   }
 }
 
 function wrapHookImplementations({hooks, manifest, path}) {
   const {missingHookStrategy} = manifest?.['sylvite'] ?? {};
-  const wrapped = {};
-  const proxy = new Proxy(hooks, {
-    get(hooks, name) {
-      if (name in hooks) {
-        if (!wrapped[name]) {
-          wrapped[name] = wrapHook(path, hooks[name]);
-        }
+  return {
+    intercept: (name, interceptor) => {
+      if (!hooks[name]) {
+        stubHookImplementation('intercept', name, missingHookStrategy);
+        return;
       }
-      else {
-        if (!wrapped[name]) {
-          wrapped[name] = {
-            tap: stubHookImplementation(name, missingHookStrategy),
-            tapAsync: stubHookImplementation(name, missingHookStrategy),
-            tapPromise: stubHookImplementation(name, missingHookStrategy),
-          };
-        }
-      }
-      return wrapped[name];
+      hooks[name].intercept(interceptor);
     },
-  });
-  return proxy;
+    tap: (name, ...args) => {
+      if (!hooks[name]) {
+        stubHookImplementation('tap', name, missingHookStrategy);
+        return;
+      }
+      hooks[name].tap(path, ...args);
+    },
+    tapAsync: (name, ...args) => {
+      if (!hooks[name]) {
+        stubHookImplementation('tapAsync', name, missingHookStrategy);
+        return;
+      }
+      hooks[name].tapAsync(path, ...args);
+    },
+    tapPromise: (name, ...args) => {
+      if (!hooks[name]) {
+        stubHookImplementation('tapPromise', name, missingHookStrategy);
+        return;
+      }
+      hooks[name].tapPromise(path, ...args);
+    },
+  };
 }
 
 export async function registerHookImplementations({entry, hooks, loaded, manifest, meta}) {

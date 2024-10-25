@@ -1,12 +1,17 @@
 /* eslint-disable no-undef */
 
 try {
+  let skipSend = false;
   console.warn = () => {
     process.send('warn');
-    process.exit(0);
+    skipSend = true;
   }
   const {hooks} = await import('virtual:sylvite/asdfghjkl');
-  process.send(hooks.lkjhgfdsa.call());
+  hooks.call('thisHookDoesNotExist');
+  const result = hooks.call('lkjhgfdsa');
+  if (!skipSend) {
+    process.send(result);
+  }
 }
 catch (error) {
   process.send('error');
