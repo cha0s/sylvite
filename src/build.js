@@ -33,7 +33,10 @@ async function createVirtualModules({manifest, meta}) {
             Object.entries(derived).map(([path, {config, resolved}]) => ([
           '  new Promise((resolve) => {',
           `    resolve(import(${JSON.stringify(resolved)}).then((M) => (`,
-          `      [${JSON.stringify(path)}, {config: ${JSON.stringify(config[entry] || {})}, M}]`,
+          '      [',
+          `        ${JSON.stringify(path)},`,
+          `        {c: ${JSON.stringify(config[entry] || {})}, M}`,
+          '      ]',
           '    )));',
           '  }),',
             ].join('\n'))).join('\n'),

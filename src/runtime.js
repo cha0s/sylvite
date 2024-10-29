@@ -20,7 +20,7 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
       return;
     }
     const params = {
-      config: spec.config[entry] || {},
+      config: spec.c[entry] || {},
       loaded,
       manifest,
       meta,
@@ -84,26 +84,26 @@ function wrapHookImplementations({hooks, manifest, path}) {
       }
       hooks[name].intercept(interceptor);
     },
-    tap: (name, ...args) => {
+    tap: (name, fn) => {
       if (!hooks[name]) {
         stubHookImplementation('tap', name, missingHookStrategy);
         return;
       }
-      hooks[name].tap(path, ...args);
+      hooks[name].tap(path, fn);
     },
-    tapAsync: (name, ...args) => {
+    tapAsync: (name, fn) => {
       if (!hooks[name]) {
         stubHookImplementation('tapAsync', name, missingHookStrategy);
         return;
       }
-      hooks[name].tapAsync(path, ...args);
+     hooks[name].tapAsync(path, fn);
     },
-    tapPromise: (name, ...args) => {
+    tapPromise: (name, fn) => {
       if (!hooks[name]) {
         stubHookImplementation('tapPromise', name, missingHookStrategy);
         return;
       }
-      hooks[name].tapPromise(path, ...args);
+      hooks[name].tapPromise(path, fn);
     },
   };
 }
@@ -115,7 +115,7 @@ export async function registerHookImplementations({entry, hooks, loaded, manifes
       return;
     }
     const params = {
-      config: spec.config[entry] || {},
+      config: spec.c[entry] || {},
       hooks: wrapHookImplementations({hooks, manifest, path}),
       loaded,
       manifest,

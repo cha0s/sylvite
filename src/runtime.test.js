@@ -7,7 +7,7 @@ test('configures missing hook behavior', async () => {
   await registerHooks({
     loaded: {
       qwertyuiop: {
-        config: {},
+        c: {},
         M: {
           implement({hooks}) {
             hooks.tap('poiuytrewq', () => {});
@@ -23,7 +23,7 @@ test('configures missing hook behavior', async () => {
   await registerHooks({
     loaded: {
       qwertyuiop: {
-        config: {},
+        c: {},
         M: {
           implement({hooks}) {
             hooks.tap('poiuytrewq', () => {});
@@ -44,7 +44,7 @@ test('configures missing hook behavior', async () => {
     await registerHooks({
       loaded: {
         qwertyuiop: {
-          config: {},
+          c: {},
           M: {
             implement({hooks}) {
               hooks.tap('poiuytrewq', () => {});
@@ -67,7 +67,7 @@ test('passes entry slice of config', async () => {
     entry: 'poiuytrewq',
     loaded: {
       qwertyuiop: {
-        config: {
+        c: {
           poiuytrewq: {zxcvbnm: 'mnbvcxz'},
         },
         M: {
