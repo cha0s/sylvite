@@ -6,5 +6,5 @@ export function register({tapable: {SyncWaterfallHook}}) {
 
 export function implement({hooks}) {
   hooks.tap('thisHookDoesNotExist', () => {});
-  hooks.tap('lkjhgfdsa', () => 'ignore');
+  hooks.tap('test:lkjhgfdsa', () => 'ignore');
 }

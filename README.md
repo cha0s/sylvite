@@ -80,7 +80,7 @@ a simple naming convention:
 ```javascript
 import {hooks} from 'virtual:sylvite/client';
 
-hooks.call('forExampleClientInitialize', window || 'whatever');
+hooks.call('coolio:forExampleClientInitialize', window || 'whatever');
 ```
 
 Your virtual module exports the following named exports:
@@ -135,7 +135,7 @@ Hooks are implemented by exporting an `implement` function from your entry:
 
 ```javascript
 export function implement({hooks}) {
-  hooks.tap('forExampleClientInitialize', (window) => {
+  hooks.tap('coolio:forExampleClientInitialize', (window) => {
     window.alert('hello world!');
   });
 }

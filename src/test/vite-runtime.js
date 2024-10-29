@@ -8,11 +8,14 @@ const {hooks} = await sylvite({
       // eslint-disable-next-line no-undef
       missingHookStrategy: process.env.MISSING_HOOK_STRATEGY,
     },
-    [import.meta.dirname]: {},
+    test: {},
   },
   meta: {
     dirname: import.meta.dirname,
     resolve: (path) => {
+      if ('test/asdfghjkl' === path) {
+        return resolve(import.meta.dirname, 'asdfghjkl.js');
+      }
       if ('sylvite/build' === path) {
         return resolve(import.meta.dirname, '..', 'build.js');
       }
@@ -23,7 +26,7 @@ const {hooks} = await sylvite({
 
 import {build} from 'vite';
 
-await build({
+await build(hooks.call('sylvite:viteConfig', {
   build: {
     lib: {
       entry: resolve(import.meta.dirname, 'runtime.js'),
@@ -35,7 +38,6 @@ await build({
     target: 'esnext',
   },
   logLevel: 'silent',
-  plugins: hooks.call('vitePlugins', []),
   resolve: {
     alias: {
       'sylvite/runtime': resolve(import.meta.dirname, '..', 'runtime.js'),
@@ -44,4 +46,4 @@ await build({
   ssr: {
     external: true,
   },
-});
+}));

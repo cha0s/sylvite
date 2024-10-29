@@ -54,19 +54,22 @@ async function createVirtualModules({manifest, meta}) {
 
 export async function implement({hooks, loaded, manifest, meta}) {
   const vmPlugin = await createVirtualModules({manifest, meta});
-  hooks.tap('vitePlugins', (plugins) => ([
-    ...plugins,
-    // restart the dev server on any build file change
-    ViteRestart({
-      restart: Object.values(loaded)
-        .map(({resolved}) => relative(meta.dirname, resolved)),
-    }),
-    vmPlugin,
-  ]));
+  hooks.tap('sylvite:viteConfig', (config) => ({
+    ...config,
+    plugins: [
+      ...config.plugins ?? [],
+      // restart the dev server on any build file change
+      ViteRestart({
+        restart: Object.values(loaded)
+          .map(({resolved}) => relative(meta.dirname, resolved)),
+      }),
+      vmPlugin,
+    ],
+  }));
 }
 
 export function register({tapable: {SyncWaterfallHook}}) {
   return {
-    vitePlugins: new SyncWaterfallHook(['plugins']),
+    viteConfig: new SyncWaterfallHook(['config']),
   };
 }

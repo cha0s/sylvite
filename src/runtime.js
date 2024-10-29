@@ -28,7 +28,7 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
       tapable,
     }
     for (const [name, hook] of Object.entries(await spec.M.register(params))) {
-      hooks[name] = hook;
+      hooks[[path, name].join(':')] = hook;
     }
   }));
   await registerHookImplementations({

@@ -8,7 +8,7 @@ try {
   }
   const {hooks} = await import('virtual:sylvite/asdfghjkl');
   hooks.call('thisHookDoesNotExist');
-  const result = hooks.call('lkjhgfdsa');
+  const result = hooks.call('test:lkjhgfdsa');
   if (!skipSend) {
     process.send(result);
   }
