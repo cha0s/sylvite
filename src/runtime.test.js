@@ -84,3 +84,30 @@ test('passes entry slice of config', async () => {
   });
   expect(slice).to.deep.equal(['mnbvcxz', 'mnbvcxz']);
 });
+
+test('calls single implementation', async () => {
+  let invoked = false;
+  const hooks = await registerHooks({
+    loaded: {
+      qwertyuiop: {
+        c: {},
+        i: {},
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', (value) => {
+              invoked = value;
+            });
+          },
+          register({tapable: {SyncHook}}) {
+            return {
+              poiuytrewq: new SyncHook(),
+            };
+          },
+        },
+      },
+    },
+    manifest: {},
+  });
+  hooks.callSingle('qwertyuiop:poiuytrewq', 'qwertyuiop', true);
+  expect(invoked).to.be.true;
+});

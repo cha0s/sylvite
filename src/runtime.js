@@ -53,6 +53,13 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
       }
       return hooks[name].callAsync(...args);
     },
+    callSingle: (name, path, ...args) => {
+      if (!loaded[path]?.i[name]) {
+        stubHookInvocation('callSingle', name, missingHookStrategy);
+        return;
+      }
+      return loaded[path].i[name](...args);
+    },
     promise: (name, ...args) => {
       if (!hooks[name]) {
         stubHookInvocation('promise', name, missingHookStrategy);
@@ -74,7 +81,7 @@ function stubHookImplementation(type, name, strategy) {
   }
 }
 
-function wrapHookImplementations({hooks, manifest, path}) {
+function wrapHookImplementations({hooks, i, manifest, path}) {
   const {missingHookStrategy} = manifest?.['sylvite'] ?? {};
   return {
     intercept: (name, interceptor) => {
@@ -89,6 +96,7 @@ function wrapHookImplementations({hooks, manifest, path}) {
         stubHookImplementation('tap', name, missingHookStrategy);
         return;
       }
+      i[name] = fn;
       hooks[name].tap(path, fn);
     },
     tapAsync: (name, fn) => {
@@ -96,13 +104,15 @@ function wrapHookImplementations({hooks, manifest, path}) {
         stubHookImplementation('tapAsync', name, missingHookStrategy);
         return;
       }
-     hooks[name].tapAsync(path, fn);
+      i[name] = fn;
+      hooks[name].tapAsync(path, fn);
     },
     tapPromise: (name, fn) => {
       if (!hooks[name]) {
         stubHookImplementation('tapPromise', name, missingHookStrategy);
         return;
       }
+      i[name] = fn;
       hooks[name].tapPromise(path, fn);
     },
   };
@@ -116,7 +126,7 @@ export async function registerHookImplementations({entry, hooks, loaded, manifes
     }
     const params = {
       config: spec.c[entry] || {},
-      hooks: wrapHookImplementations({hooks, manifest, path}),
+      hooks: wrapHookImplementations({hooks, i: spec.i, manifest, path}),
       loaded,
       manifest,
       meta,
