@@ -49,6 +49,7 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
     callAsync: (name, ...args) => {
       if (!hooks[name]) {
         stubHookInvocation('callAsync', name, missingHookStrategy);
+        args[args.length - 1]();
         return;
       }
       return hooks[name].callAsync(...args);

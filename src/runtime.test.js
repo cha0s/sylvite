@@ -111,3 +111,15 @@ test('calls single implementation', async () => {
   hooks.callSingle('qwertyuiop:poiuytrewq', 'qwertyuiop', true);
   expect(invoked).to.be.true;
 });
+
+test('nonexistent callAsync invokes callback', async () => {
+  let invoked = false;
+  const hooks = await registerHooks({
+    loaded: {},
+    manifest: {},
+  });
+  hooks.callAsync('thisHookDoesNotExist', () => {
+    invoked = true;
+  });
+  expect(invoked).to.be.true;
+});
