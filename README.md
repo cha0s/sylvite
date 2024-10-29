@@ -155,6 +155,20 @@ The following context is passed to your `implement` function:
 }
 ```
 
+#### Ordering
+
+Hooks can be ordered before or other implementations by using `.before()` and `.after()`:
+
+```javascript
+export function implement({hooks}) {
+  hooks.before('sylvite').tap('coolio:forExampleClientInitialize', (window) => {
+    window.alert('hello world!');
+  });
+}
+```
+
+That hook will run before any implemented by `'sylvite'`.
+
 #### Stubbing
 
 By default, Sylvite will silently ignore e.g.:
@@ -186,10 +200,6 @@ the missing hook implementation was referenced. `'error'` will throw the error i
 ## Restart 🎶
 
 When any `'build'` entry file changes, the Vite dev server will restart automatically.
-
-## TODO ✍️
-
-It will be possible in the future to specify the order in which hooks execute.
 
 ## Q/A 💬
 

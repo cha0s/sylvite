@@ -35,7 +35,7 @@ async function createVirtualModules({manifest, meta}) {
           `    resolve(import(${JSON.stringify(resolved)}).then((M) => (`,
           '      [',
           `        ${JSON.stringify(path)},`,
-          `        {c: ${JSON.stringify(config[entry] || {})}, i: {}, M}`,
+          `        {c: ${JSON.stringify(config[entry] || {})}, M}`,
           '      ]',
           '    )));',
           '  }),',

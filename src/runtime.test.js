@@ -2,34 +2,40 @@ import {expect, test, vi} from 'vitest';
 
 import {registerHooks} from './runtime.js';
 
+function fakeRegistration(registration) {
+  return {
+    c: {},
+    ...registration,
+  };
+}
+
 test('configures missing hook behavior', async () => {
   let implemented = false;
   await registerHooks({
     loaded: {
-      qwertyuiop: {
-        c: {},
+      qwertyuiop: fakeRegistration({
         M: {
           implement({hooks}) {
             hooks.tap('poiuytrewq', () => {});
             implemented = true;
           },
         },
-      },
+      }),
     },
+    manifest: {},
   });
   expect(implemented).to.be.true;
   // warn
   const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
   await registerHooks({
     loaded: {
-      qwertyuiop: {
-        c: {},
+      qwertyuiop: fakeRegistration({
         M: {
           implement({hooks}) {
             hooks.tap('poiuytrewq', () => {});
           },
         },
-      },
+      }),
     },
     manifest: {
       sylvite: {
@@ -43,14 +49,13 @@ test('configures missing hook behavior', async () => {
   expect(async () => {
     await registerHooks({
       loaded: {
-        qwertyuiop: {
-          c: {},
+        qwertyuiop: fakeRegistration({
           M: {
             implement({hooks}) {
               hooks.tap('poiuytrewq', () => {});
             },
           },
-        },
+        }),
       },
       manifest: {
         sylvite: {
@@ -66,7 +71,7 @@ test('passes entry slice of config', async () => {
   await registerHooks({
     entry: 'poiuytrewq',
     loaded: {
-      qwertyuiop: {
+      qwertyuiop: fakeRegistration({
         c: {
           poiuytrewq: {zxcvbnm: 'mnbvcxz'},
         },
@@ -79,8 +84,9 @@ test('passes entry slice of config', async () => {
             return {};
           },
         },
-      },
+      }),
     },
+    manifest: {},
   });
   expect(slice).to.deep.equal(['mnbvcxz', 'mnbvcxz']);
 });
@@ -89,9 +95,7 @@ test('calls single implementation', async () => {
   let invoked = false;
   const hooks = await registerHooks({
     loaded: {
-      qwertyuiop: {
-        c: {},
-        i: {},
+      qwertyuiop: fakeRegistration({
         M: {
           implement({hooks}) {
             hooks.tap('qwertyuiop:poiuytrewq', (value) => {
@@ -104,7 +108,7 @@ test('calls single implementation', async () => {
             };
           },
         },
-      },
+      }),
     },
     manifest: {},
   });
@@ -122,4 +126,133 @@ test('nonexistent callAsync invokes callback', async () => {
     invoked = true;
   });
   expect(invoked).to.be.true;
+});
+
+test('default hook order', async () => {
+  let accumulation = 1;
+  const hooks = await registerHooks({
+    loaded: {
+      qwertyuiop: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation *= 2;
+            });
+          },
+          register({tapable: {SyncHook}}) {
+            return {
+              poiuytrewq: new SyncHook(),
+            };
+          },
+        },
+      }),
+      asdfghjkl: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation += 3;
+            });
+          },
+        },
+      }),
+      zxcvbnm: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation *= 5;
+            });
+          },
+        },
+      }),
+    },
+    manifest: {},
+  });
+  hooks.call('qwertyuiop:poiuytrewq');
+  expect(accumulation).to.equal(25);
+});
+
+test('explicit hook order: before', async () => {
+  let accumulation = 1;
+  const hooks = await registerHooks({
+    loaded: {
+      qwertyuiop: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation *= 2;
+            });
+          },
+          register({tapable: {SyncHook}}) {
+            return {
+              poiuytrewq: new SyncHook(),
+            };
+          },
+        },
+      }),
+      asdfghjkl: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.before('qwertyuiop').tap('qwertyuiop:poiuytrewq', () => {
+              accumulation += 3;
+            });
+          },
+        },
+      }),
+      zxcvbnm: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation *= 5;
+            });
+          },
+        },
+      }),
+    },
+    manifest: {},
+  });
+  hooks.call('qwertyuiop:poiuytrewq');
+  expect(accumulation).to.equal(40);
+});
+
+test('explicit hook order: after', async () => {
+  let accumulation = 1;
+  const hooks = await registerHooks({
+    loaded: {
+      qwertyuiop: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.after('asdfghjkl').tap('qwertyuiop:poiuytrewq', () => {
+              accumulation *= 2;
+            });
+          },
+          register({tapable: {SyncHook}}) {
+            return {
+              poiuytrewq: new SyncHook(),
+            };
+          },
+        },
+      }),
+      asdfghjkl: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation += 3;
+            });
+          },
+        },
+      }),
+      zxcvbnm: fakeRegistration({
+        M: {
+          implement({hooks}) {
+            hooks.tap('qwertyuiop:poiuytrewq', () => {
+              accumulation *= 7;
+            });
+          },
+        },
+      }),
+    },
+    manifest: {},
+  });
+  hooks.call('qwertyuiop:poiuytrewq');
+  expect(accumulation).to.equal(56);
 });

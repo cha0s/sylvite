@@ -1,5 +1,7 @@
 import * as tapable from 'tapable';
 
+import Digraph from './digraph.js';
+
 function stubHookInvocation(type, name, strategy) {
   switch (strategy) {
     case 'error': {
@@ -31,7 +33,7 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
       hooks[[path, name].join(':')] = hook;
     }
   }));
-  await registerHookImplementations({
+  const registry = await registerHookImplementations({
     entry,
     hooks,
     loaded,
@@ -55,11 +57,11 @@ export async function registerHooks({entry, loaded, manifest, meta}) {
       return hooks[name].callAsync(...args);
     },
     callSingle: (name, path, ...args) => {
-      if (!loaded[path]?.i[name]) {
+      if (!registry[name]?.[path]) {
         stubHookInvocation('callSingle', name, missingHookStrategy);
         return;
       }
-      return loaded[path].i[name](...args);
+      return registry[name][path][1](...args);
     },
     promise: (name, ...args) => {
       if (!hooks[name]) {
@@ -82,52 +84,76 @@ function stubHookImplementation(type, name, strategy) {
   }
 }
 
-function wrapHookImplementations({hooks, i, manifest, path}) {
+function wrapHookImplementations({graphs, hooks, manifest, path, registry}) {
   const {missingHookStrategy} = manifest?.['sylvite'] ?? {};
   return {
-    intercept: (name, interceptor) => {
+    $$after: [],
+    $$before: [],
+    after(...dependendents) {
+      this.$$after.push(...dependendents);
+      return this;
+    },
+    before(...dependencies) {
+      this.$$before.push(...dependencies);
+      return this;
+    },
+    intercept(name, fn) {
       if (!hooks[name]) {
         stubHookImplementation('intercept', name, missingHookStrategy);
         return;
       }
-      hooks[name].intercept(interceptor);
+      this.register(name, 'intercept', fn);
     },
-    tap: (name, fn) => {
+    register(name, type, fn) {
+      if (!graphs[name]) {
+        graphs[name] = new Digraph();
+      }
+      graphs[name].ensureTail(path);
+      for (const dependendent of this.$$after) {
+        graphs[name].addDependency(dependendent, path);
+      }
+      for (const dependency of this.$$before) {
+        graphs[name].addDependency(path, dependency);
+      }
+      if (!registry[name]) {
+        registry[name] = {};
+      }
+      registry[name][path] = [type, fn];
+    },
+    tap(name, fn) {
       if (!hooks[name]) {
         stubHookImplementation('tap', name, missingHookStrategy);
         return;
       }
-      i[name] = fn;
-      hooks[name].tap(path, fn);
+      this.register(name, 'tap', fn);
     },
-    tapAsync: (name, fn) => {
+    tapAsync(name, fn) {
       if (!hooks[name]) {
         stubHookImplementation('tapAsync', name, missingHookStrategy);
         return;
       }
-      i[name] = fn;
-      hooks[name].tapAsync(path, fn);
+      this.register(name, 'tapAsync', fn);
     },
-    tapPromise: (name, fn) => {
+    tapPromise(name, fn) {
       if (!hooks[name]) {
         stubHookImplementation('tapPromise', name, missingHookStrategy);
         return;
       }
-      i[name] = fn;
-      hooks[name].tapPromise(path, fn);
+      this.register(name, 'tapPromise', fn);
     },
   };
 }
 
-export async function registerHookImplementations({entry, hooks, loaded, manifest, meta}) {
-  // register implementations
+export async function registerHookImplementations({entry = 'build', hooks, loaded, manifest, meta}) {
+  const graphs = {};
+  const registry = {};
   await Promise.all(Object.entries(loaded).map(([path, spec]) => {
     if (!spec.M.implement) {
       return;
     }
     const params = {
       config: spec.c[entry] || {},
-      hooks: wrapHookImplementations({hooks, i: spec.i, manifest, path}),
+      hooks: wrapHookImplementations({graphs, hooks, manifest, path, registry}),
       loaded,
       manifest,
       meta,
@@ -136,4 +162,11 @@ export async function registerHookImplementations({entry, hooks, loaded, manifes
     }
     return spec.M.implement(params);
   }));
+  for (const name in registry) {
+    for (const path of graphs[name].sort()) {
+      const [type, fn] = registry[name][path];
+      hooks[name][type](path, fn);
+    }
+  }
+  return registry;
 }

@@ -50,7 +50,6 @@ export default async function sylvite({entry = 'build', manifest, meta}) {
   await Promise.all(Object.entries(derived).map(async ([path, {config, resolved}]) => {
     loaded[path] = {
       c: config,
-      i: {},
       resolved,
       // timestamp for cachebreaking
       M: await import([resolved, Date.now()].join('?')),
