@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.4...sylvite-v1.0.5) (2024-10-31)
+
+
+### Bug Fixes
+
+* return first arg for unimplemented result hooks ([4ae25eb](https://github.com/cha0s/sylvite/commit/4ae25eb74fae1c2142b482413be191c52357ce63))
+
 ## [1.0.4](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.3...sylvite-v1.0.4) (2024-10-29)
 
 
