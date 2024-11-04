@@ -1,5 +1,5 @@
 import {basename, extname} from 'node:path';
-import {access, constants} from 'node:fs/promises';
+import {access, constants, stat} from 'node:fs/promises';
 
 import {registerHooks} from './runtime.js';
 
@@ -23,6 +23,11 @@ export async function deriveManifest({entry, manifest, meta}) {
         // it also does not resolve necessary extensions
         await access(resolved + '.js', constants.R_OK);
         resolved += '.js';
+      }
+      // ensure it's a file
+      const stats = await stat(resolved);
+      if (!stats.isFile()) {
+        return;
       }
       derived[path] = {config, resolved};
     }
