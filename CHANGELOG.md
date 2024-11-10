@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.5...sylvite-v1.0.6) (2024-11-10)
+
+
+### Bug Fixes
+
+* ensure resolved import is a file ([9462f9a](https://github.com/cha0s/sylvite/commit/9462f9ac9ebbb241c5d49c545f0e5d8da82ec7c1))
+
 ## [1.0.5](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.4...sylvite-v1.0.5) (2024-10-31)
 
 
