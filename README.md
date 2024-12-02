@@ -216,9 +216,13 @@ object that implemented `dirname` and `resolve`, though I don't know why you'd w
 
 😂
 
-I'm experimenting with configuring e.g. entire remix route trees using this. It should be possible
-to package up an entire self-contained feature such as user accounts as a module that can simply be
-added to your app's manifest to fully implement the feature in your app.
+I'm experimenting!
+
+![Siyens](https://i.imgflip.com/8644d7.jpg)
+
+It should be possible to e.g. package up an entire self-contained feature such as user accounts
+with full routing, etc. as a module that can simply be added to your app's manifest to fully
+implement the feature in your app.
 
 I'm also experimenting with using this as a game modding platform.
 
