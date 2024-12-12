@@ -14,6 +14,9 @@ export default defineConfig({
       outDir: ['dist', dirname(process.env.LIB)].join('/'),
       ssr: !!process.env.SSR,
     }),
+    rollupOptions: {
+      external: ['./index.js', './runtime.js'],
+    },
     sourcemap: true,
     target: 'esnext',
   },
