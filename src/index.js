@@ -27,7 +27,11 @@ export async function deriveManifest({entry, manifest, meta}) {
       // ensure it's a file
       const stats = await stat(resolved);
       if (!stats.isFile()) {
-        return;
+        // might have found directory first
+        const stats = await stat(resolved + '.js');
+        if (!stats.isFile()) {
+          return;
+        }
       }
       derived[path] = {config, resolved};
     }
