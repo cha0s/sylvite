@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.7](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.6...sylvite-v1.0.7) (2024-12-12)
+
+
+### Bug Fixes
+
+* build redundancy ([420effa](https://github.com/cha0s/sylvite/commit/420effaa0253ffc7b16b5c9c7754623086ac5933))
+* file with same name as directory ([d863d35](https://github.com/cha0s/sylvite/commit/d863d3508498cff49253782da8163918161f76b8))
+
 ## [1.0.6](https://github.com/cha0s/sylvite/compare/sylvite-v1.0.5...sylvite-v1.0.6) (2024-11-10)
 
 
